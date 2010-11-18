@@ -1,4 +1,4 @@
-v#!/usr/bin/perl -w
+#!/usr/bin/python
 # Author: Dominik Burgdoerfer <dominik.burgdoerfer@uni-ulm.de>
 # Script to login automatically to the wireless lan of the university of ulm.
 #
