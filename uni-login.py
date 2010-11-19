@@ -24,8 +24,6 @@ form_regex = re.compile(r'.*form *method="post" *action="([^"]+)".*',
                         re.IGNORECASE)
 
 def retrieve_form_data():
-    global ERRCODE
-
     fd = urlopen("http://uni-ulm.de")
 
     data_regex = re.compile(r'.*type="hidden" *name="([^"]+)" *value="([^"]*)".*',
