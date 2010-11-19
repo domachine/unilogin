@@ -48,7 +48,25 @@ class LoginManager(object):
         * ``password`` (str): The password used to login.
         """
 
-        pass
+        fd = urlopen(url, post_data)
+
+        logged_in = True
+
+        # Search for login form. If it exists, the login failed.
+        for line in fd:
+            # Decode byte-array to string.
+            line = line.decode("utf-8")
+            m = self._parent.form_regex.match(line)
+
+            if m is not None:
+                # Verify form url.
+                if m.group(1) == url:
+                    logged_in = False
+                    break
+
+        fd.close()
+
+        return logged_in
 
 class Agent(object):
     def __init__(self):
