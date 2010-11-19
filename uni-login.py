@@ -19,9 +19,6 @@ from urllib.request import urlopen
 import re
 from os import environ
 
-ERR = ("Unable to connect",
-       "Already connected")
-ERRCODE = -1
 
 form_regex = re.compile(r'.*form *method="post" *action="([^"]+)".*',
                         re.IGNORECASE)
