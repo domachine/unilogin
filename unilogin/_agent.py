@@ -106,7 +106,7 @@ class Agent(object):
     >>> a = Agent()
     >>> log = None
     >>> log = a.login_manager()
-    >>> log.login("s_dburgd", "udW6P4Ck")
+    >>> log.login("s_dburgd", "<password>")
     True
     >>> log.logout()
     True
@@ -206,11 +206,3 @@ class Agent(object):
     def _compile_regex(self, name, pattern):
         self.__dict__[name] = re.compile(pattern,
                                          re.IGNORECASE)
-
-if __name__ == "__main__":
-    a = Agent()
-    log = None
-    log = a.login_manager()
-    print(log.login("s_dburgd", "udW6P4Ck"))
-
-    print(log.logout())
