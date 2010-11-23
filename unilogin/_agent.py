@@ -108,8 +108,6 @@ class Agent(object):
     >>> log = a.login_manager()
     >>> log.login("s_dburgd", "<password>")
     True
-    >>> log.logout()
-    True
     """
 
     def __init__(self):
