@@ -24,78 +24,6 @@ from urllib.parse import urlencode
 
 __all__ = ["Agent"]
 
-class LoginManager(object):
-    """
-    Cares about the final login process to the network.
-    An object of this class is usually created through the Agent.
-    """
-
-    def __init__(self, parent, url, data):
-        """
-        Initializes the Manager with the form data and the
-        url to call.
-        """
-
-        self._parent = parent
-        self._url = url
-        self._post_data = data
-
-    def login(self, username, password):
-        """
-        Logs into the network using ``username`` and ``password``.
-        An IOError is raised if something goes wrong.
-
-        Parameters:
-        * ``username`` (str): The username used to login.
-        * ``password`` (str): The password used to login.
-        """
-
-        post_data = self._post_data.copy()
-        post_data.update({"user": username, "pass": password})
-
-        data_encoded = urlencode(post_data)
-
-        fd = urlopen(self._url, data_encoded)
-
-        logged_in = True
-
-        # Search for login form. If it exists, the login failed.
-        for line in fd:
-            # Decode byte-array to string.
-            line = line.decode("utf-8")
-            m = self._parent.form_regex.match(line)
-
-            if m is not None:
-                # Verify form url.
-                if m.group(1) == self._url:
-                    logged_in = False
-                    #break
-
-        fd.close()
-
-        return logged_in
-
-    def logout(self):
-        """
-        Logs the LoginManager out.
-
-        Returns: True if everything was successful and False if something went
-                 wrong.
-        """
-
-        fd = urlopen("http://welcome.uni-ulm.de/logout.html")
-        logged_out = False
-
-        for line in fd:
-            line = line.decode("utf-8")
-
-            if self._parent.logout_regex.match(line):
-                logged_out = True
-                break
-
-        fd.close()
-
-        return logged_out
 
 
 class Agent(object):
@@ -120,7 +48,10 @@ class Agent(object):
         self._end_form_regex = None
         self._logout_regex = None
 
-    def login_manager(self, register_url="http://uni-ulm.de"):
+        self._url = None
+        self._post_data = None
+
+    def _fetch_login_data(self, register_url):
         """
         Retrieves form data from the ``register_url``
         and initializes a suitable LoginManager that can then
@@ -128,6 +59,9 @@ class Agent(object):
 
         Parameters:
         ``register_url`` (str): The url to get the form data from.
+
+        Exceptions:
+        :class:`IOError`: Raised if the user is already logged in.
         """
 
         fd = urlopen(register_url)
@@ -161,13 +95,75 @@ class Agent(object):
         fd.close()
 
         if url is not None and post_data:
-            return LoginManager(self, url, post_data)
+            self._url = url
+            self._post_data = post_data
         else:
             if(num_of_lines):
                 raise IOError("Already logged in.")
             else:
                 raise RuntimeError("Unknown error. No data received. " +
                                    "This might be a bug.")
+
+    def login(self, username, password, register_url="http://uni-ulm.de"):
+        """
+        Logs into the network using ``username`` and ``password``.
+        An IOError is raised if something goes wrong.
+
+        Parameters:
+        * ``username`` (str): The username used to login.
+        * ``password`` (str): The password used to login.
+        * ``register_url`` (str): The url used to fetch the post-data.
+        """
+
+        if self._url is None:
+            self._fetch_login_data(register_url)
+
+        post_data = self._post_data.copy()
+        post_data.update({"user": username, "pass": password})
+
+        data_encoded = urlencode(post_data)
+
+        fd = urlopen(self._url, data_encoded)
+
+        logged_in = True
+
+        # Search for login form. If it exists, the login failed.
+        for line in fd:
+            # Decode byte-array to string.
+            line = line.decode("utf-8")
+            m = self.form_regex.match(line)
+
+            if m is not None:
+                # Verify form url.
+                if m.group(1) == self._url:
+                    logged_in = False
+                    #break
+
+        fd.close()
+
+        return logged_in
+
+    def logout(self):
+        """
+        Logs the LoginManager out.
+
+        Returns: True if everything was successful and False if something went
+                 wrong.
+        """
+
+        fd = urlopen("http://welcome.uni-ulm.de/logout.html")
+        logged_out = False
+
+        for line in fd:
+            line = line.decode("utf-8")
+
+            if self.logout_regex.match(line):
+                logged_out = True
+                break
+
+        fd.close()
+
+        return logged_out
 
     @property
     def form_regex(self):
