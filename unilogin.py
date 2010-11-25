@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # This program makes it easy to login to the wireless network of the
 # university of Ulm.
-# Copyright (C) 2010  Dominik Burgdörfer <dominik.burgdoerfer@googlemail.com>
+# Copyright (C) 2010  Dominik Burgdörfer <dominik.burgdoerfer@googlemail.com>,
+#                     Stefan Wiehler <stefan.wiehler@uni-ulm.de>
 
 # This file is part of unilogin.
 
